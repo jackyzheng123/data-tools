@@ -3,8 +3,8 @@ package com.zjx.service.impl;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.google.common.base.Stopwatch;
-import com.zjx.dto.JimiCartonImportDto;
-import com.zjx.dto.JimiRelationImportDto;
+import com.zjx.dto.JimiCartonDTO;
+import com.zjx.dto.JimiRelationDTO;
 import com.zjx.entity.JimiCarton;
 import com.zjx.entity.JimiRelation;
 import com.zjx.service.IHandleImportService;
@@ -58,7 +58,7 @@ public class HandleImportServiceImpl implements IHandleImportService {
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<JimiCarton> tempList = new ArrayList<>();
 
-        AnalysisEventListener<JimiCartonImportDto> listener = EasyExcelUtils.getListener(list -> {
+        AnalysisEventListener<JimiCartonDTO> listener = EasyExcelUtils.getListener(list -> {
             list.forEach(x -> {
                 JimiCarton entity = new JimiCarton();
                 BeanUtils.copyProperties(x, entity);
@@ -74,12 +74,12 @@ public class HandleImportServiceImpl implements IHandleImportService {
         String msg = "";
         if (sheetNo == null) {
             // 读取全部sheet
-            msg = readExcel(stopwatch, file, JimiCartonImportDto.class, listener);
+            msg = readExcel(stopwatch, file, JimiCartonDTO.class, listener);
         } else {
             // 读取单个sheet
             try {
                 // 默认读取第一个sheet，也可以指定，如：sheet(1)读取第二个sheet
-                EasyExcel.read(file.getInputStream(), JimiCartonImportDto.class, listener).sheet(sheetNo).doRead();
+                EasyExcel.read(file.getInputStream(), JimiCartonDTO.class, listener).sheet(sheetNo).doRead();
             } catch (IOException e) {
                 // 重置计数器
                 EasyExcelUtils.count.set(0);
@@ -105,7 +105,7 @@ public class HandleImportServiceImpl implements IHandleImportService {
 
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<JimiRelation> tempList = new ArrayList<>();
-        AnalysisEventListener<JimiRelationImportDto> listener = EasyExcelUtils.getListener(list -> {
+        AnalysisEventListener<JimiRelationDTO> listener = EasyExcelUtils.getListener(list -> {
             list.forEach(x -> {
                 JimiRelation entity = new JimiRelation();
                 BeanUtils.copyProperties(x, entity);
@@ -122,12 +122,12 @@ public class HandleImportServiceImpl implements IHandleImportService {
         String msg = "";
         if (sheetNo == null) {
             // 读取全部sheet
-            msg = readExcel(stopwatch, file, JimiRelationImportDto.class, listener);
+            msg = readExcel(stopwatch, file, JimiRelationDTO.class, listener);
         } else {
             // 读取单个sheet
             try {
                 // 默认读取第一个sheet，也可以指定，如：sheet(1)读取第二个sheet
-                EasyExcel.read(file.getInputStream(), JimiRelationImportDto.class, listener).sheet(sheetNo).doRead();
+                EasyExcel.read(file.getInputStream(), JimiRelationDTO.class, listener).sheet(sheetNo).doRead();
             } catch (IOException e) {
                 // 重置计数器
                 EasyExcelUtils.count.set(0);

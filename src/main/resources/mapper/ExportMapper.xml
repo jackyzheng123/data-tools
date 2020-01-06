@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zjx.mapper.ExportMapper">
+
+    <sql id="Base_Field">
+        `Id` AS id,
+        `BoxNo` AS boxNo,
+        `IMEI` AS imeiNo,
+        `ZhiDan` AS orderNo,
+        `SoftModel` AS machineModel,
+        `Version` AS version,
+        `ProductCode` AS productNo,
+        `Color` AS color,
+        `Qty` AS `number`,
+        `Weight` AS weight,
+        `Date` AS `date`,
+        `CompanyName` AS comName,
+        `TesterId` AS oper,
+        `TestTime` AS uploadDate,
+        `Remark1` AS remark,
+        `Remark2` AS rfidNo,
+        `Remark3` AS secondNo,
+        `Remark4` AS checkInfo,
+        `Remark5` AS pcInfo
+    </sql>
+
+    <!-- 查询卡通箱数据 -->
+    <select id="queryJimiCartonList" resultType="com.zjx.dto.JimiCartonDTO">
+        SELECT
+            <include refid="Base_Field" />
+        FROM Gps_CartonBoxTwenty_Result
+        LIMIT 1000
+    </select>
+
+    <!-- 分页去数据库查询数据 -->
+    <select id="queryJimiCartonPage" resultType="com.zjx.dto.JimiCartonDTO">
+        SELECT
+            <include refid="Base_Field" />
+        FROM Gps_CartonBoxTwenty_Result
+        LIMIT #{pageNum}, #{pageSize}
+    </select>
+</mapper>

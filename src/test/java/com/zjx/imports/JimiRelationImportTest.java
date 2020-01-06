@@ -1,7 +1,8 @@
-package com.zjx;
+package com.zjx.imports;
 
+import com.zjx.DataToolsApplication;
 import com.zjx.config.ThreadPoolCommon;
-import com.zjx.entity.JimiCarton;
+import com.zjx.entity.JimiRelation;
 import com.zjx.utils.DateUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,16 +27,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
 /**
- * @Description 几米物联卡通箱标识从Mysql导入MongoDB
+ * @Description 几米物联关联表标识从Mysql导入MongoDB
  * @Author Carson Cheng
  * @Date 2019/12/25 11:43
  * @Version V1.0
  **/
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = DataToolsApplication.class)
-public class JimiCartonImportTest {
+public class JimiRelationImportTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JimiCartonImportTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JimiRelationImportTest.class);
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -51,23 +52,22 @@ public class JimiCartonImportTest {
     private final int pageSize = 5000;
 
     // 最小id -- 查询开始索引，避免任务量过大，或者写死最小id
-    private static final String MIN_ID_SQL = "SELECT MIN(id) FROM Gps_CartonBoxTwenty_Result";
+    private static final String MIN_ID_SQL = "SELECT MIN(id) FROM DataRelativeSheet_tmp";
     // 最大id -- id不连续采取查询最大id替代查询统计数量 ，或者写死最大id
-    private static final String MAX_ID_SQL = "SELECT MAX(id) FROM Gps_CartonBoxTwenty_Result";
+    private static final String MAX_ID_SQL = "SELECT MAX(id) FROM DataRelativeSheet_tmp";
     // 统计数量
-    private static final String COUNT_SQL = "SELECT COUNT(*) FROM Gps_CartonBoxTwenty_Result";
+    private static final String COUNT_SQL = "SELECT COUNT(*) FROM DataRelativeSheet_tmp";
 
     // 大数据分页limit查询慢：采用查询id范围（适用于主键为int类型,连续自增）
-    private static final String BASE_SQL = "SELECT Id,BoxNo,IMEI,ZhiDan,SoftModel,Version,ProductCode,Color,Qty,Date,TestTime,Remark1,Remark2,Remark3 FROM Gps_CartonBoxTwenty_Result ";
+    private static final String BASE_SQL = "SELECT IMEI1,IMEI2,IMEI3,IMEI4,IMEI6,IMEI7,IMEI8,IMEI9,IMEI10,IMEI11,IMEI12,IMEI13,ZhiDan,TestTime,_MASK_FROM_V2,NetMark,IMEI14 FROM DataRelativeSheet_tmp ";
     private static final String SQL = BASE_SQL + "WHERE Id >= ? AND Id < ?";
 
 
     @Test
-    public void testImportCarton() {
+    public void testImportRelation() {
 
         // 统计数量
         //Integer count = jdbcTemplate.queryForObject(COUNT_SQL, Integer.class);
-        //Integer count = 19318868;
         Integer count = jdbcTemplate.queryForObject(MAX_ID_SQL, Integer.class);
         LOG.info("总数量：" + count);
 
@@ -81,7 +81,6 @@ public class JimiCartonImportTest {
 
         // 读数据
         readData(pageCount, minId);
-
     }
 
     /**
@@ -94,7 +93,7 @@ public class JimiCartonImportTest {
 
         List<CompletableFuture<Boolean>> futureList = new LinkedList<>();
         CountDownLatch latch = new CountDownLatch(pageCount);
-//        // 获取线程池
+        // 获取线程池
         Executor executor = ThreadPoolCommon.getExecutor();
 
         int curMinId = 0;
@@ -151,41 +150,44 @@ public class JimiCartonImportTest {
 
         final int maxId = curMinId + pageSize;
 
-        List<JimiCarton> cartonList = jdbcTemplate.query(sql, new PreparedStatementSetter() {
+        List<JimiRelation> relationList = jdbcTemplate.query(sql, new PreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps) throws SQLException {
-                ps.setLong(1, curMinId);
-                ps.setLong(2, maxId);
+                ps.setInt(1, curMinId);
+                ps.setInt(2, maxId);
             }
-        }, new RowMapper<JimiCarton>() {
+        }, new RowMapper<JimiRelation>() {
 
             @Override
-            public JimiCarton mapRow(ResultSet rs, int rowNum) throws SQLException {
-                JimiCarton carton = new JimiCarton();
-                carton.setProductCode(JIMI_HANDLE + rs.getString("IMEI"));
-                carton.setComName(JIMI_COMPANY);
-                carton.setBoxNo(rs.getString("BoxNo"));
-                carton.setImeiNo(rs.getString("IMEI"));
-                carton.setOrderNo(rs.getString("ZhiDan"));
-                carton.setMachineModel(rs.getString("SoftModel"));
-                carton.setVersion(rs.getString("Version"));
-                carton.setProductNo(rs.getString("ProductCode"));
-                carton.setColor(rs.getString("Color"));
-                carton.setNumber(rs.getString("Qty"));
-                carton.setDate(rs.getString("Date"));
-                carton.setUploadDate(DateUtils.formatDate(rs.getTimestamp("TestTime"), DateUtils.YYYY_MM_DD_HH_MM_SS));
-                carton.setRemark(rs.getString("Remark1"));
-                carton.setRfidNo(rs.getString("Remark2"));
-                carton.setSecondNo(rs.getString("Remark3"));
-                return carton;
+            public JimiRelation mapRow(ResultSet rs, int rowNum) throws SQLException {
+                JimiRelation relation = new JimiRelation();
+                relation.setProductCode(JIMI_HANDLE + rs.getString("IMEI1"));
+                relation.setComName(JIMI_COMPANY);
+                relation.setSnNo(rs.getString("IMEI2"));
+                relation.setSimNo(rs.getString("IMEI3"));
+                relation.setIccidNo(rs.getString("IMEI4"));
+                relation.setMacAddr(rs.getString("IMEI6"));
+                relation.setMachineNo(rs.getString("IMEI7"));
+                relation.setVipNo(rs.getString("IMEI8"));
+                relation.setBatNo(rs.getString("IMEI9"));
+                relation.setSecondLockId(rs.getString("IMEI10"));
+                relation.setMachineCode(rs.getString("IMEI11"));
+                relation.setImsiNo(rs.getString("IMEI12"));
+                relation.setRfidNo(rs.getString("IMEI13"));
+                relation.setOrderNo(rs.getString("ZhiDan"));
+                relation.setUploadDate(DateUtils.formatDate(rs.getTimestamp("TestTime"), DateUtils.YYYY_MM_DD_HH_MM_SS));
+                relation.setSimActiveDate(rs.getString("_MASK_FROM_V2"));
+                relation.setNetNo(rs.getString("NetMark"));
+                relation.setSecondIMEI(rs.getString("IMEI14"));
+                return relation;
             }
 
         });
 
         // 保存数据
-        mongoTemplate.insertAll(cartonList);
-        LOG.info("当前第{}个任务，线程:{}，查询id区间：{}-{}，成功保存数据 {}条", n, Thread.currentThread().getName(), curMinId, maxId, cartonList.size());
-        cartonList = null;
+        mongoTemplate.insertAll(relationList);
+        LOG.info("当前第{}个任务，线程:{}，查询id区间：{}-{}，成功保存数据 {}条", n, Thread.currentThread().getName(), curMinId, maxId, relationList.size());
+        relationList = null;
         return true;
     }
 }

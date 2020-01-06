@@ -15,7 +15,7 @@ import java.util.Date;
  * @Version V1.0
  **/
 @Data
-public class JimiCartonImportDto implements Serializable {
+public class JimiCartonDTO implements Serializable {
 
     /**
      * 产品ID

@@ -1,3 +1,5 @@
+server:
+  port: 8080
 
 spring:
   datasource:
@@ -28,6 +30,27 @@ spring:
   data:
     mongodb:
       uri: mongodb://192.168.212.4:27017/zjxTest?maxPoolSize=256
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.zjx
+  configuration:
+    cache-enabled: true
+    map-underscore-to-camel-case: true
+
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+  returnPageInfo: check
+
+logging:
+  level:
+    com:
+      zjx:
+        mapper: debug
+  config: classpath:logback-data.xml
 
 spek:
   file:

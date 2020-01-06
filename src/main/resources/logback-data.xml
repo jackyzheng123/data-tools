@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 参考文档:https://www.cnblogs.com/warking/p/5710303.html
+		根节点,有三个属性
+	   scan: 当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true。
+　　　　scanPeriod: 设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。
+　　　　debug: 当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。-->
+<configuration>
+	<!--此标签用来定义属性的,有key value两个属性,可以在下面用${}来取-->
+
+	<property name="default_log_path" value="logs" />
+	<property name="LOG_PATH" value="${LOG_PATH:-${default_log_path}}"/>
+	<property name="LOG_FILE" value="${LOG_FILE:-data-tools}"/>
+	<property name="CONSOLE_LOG_PATTERN"
+			  value="%date{yyyy-MM-dd HH:mm:ss} | %-5level | %thread |  %logger | %msg%n"/>
+	<!-- the name of the application's logging context -->
+	<!-- by default each JMXConfigurator instance will be registered under the same name in the same JVM -->
+	<!-- we need to set the contextName for different apps, so that the jmxconfigurator won'Mybatis-Plus.properties collide -->
+	<contextName>spek-finance</contextName>
+	<jmxConfigurator/>
+
+	<springProfile name="default,dev">
+		<appender name="CONSOLE-APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+			<!--	<encoder>
+                    &lt;!&ndash;格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符&ndash;&gt;
+                    <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+                </encoder>-->
+			<encoder charset="UTF-8">
+				<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+			</encoder>
+		</appender>
+		<appender name="DAILY_ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<encoder>
+				<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+			</encoder>
+			<file>${LOG_PATH}/${LOG_FILE}.log</file>
+			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<fileNamePattern>${LOG_PATH}/${LOG_FILE}.%d{yyyy-MM-dd}.log</fileNamePattern>
+			</rollingPolicy>
+		</appender>
+		<logger name="com.spek" level="info" />
+		<root level="info">
+			<appender-ref ref="CONSOLE-APPENDER"/>
+			<appender-ref ref="DAILY_ROLLING_FILE"/>
+		</root>
+	</springProfile>
+
+	<springProfile name="test">
+		<appender name="CONSOLE-APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+			<encoder charset="UTF-8">
+				<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+			</encoder>
+		</appender>
+
+		<appender name="SIZED_ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<encoder>
+				<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+			</encoder>
+			<file>${LOG_PATH}/${LOG_FILE}.log</file>
+			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<fileNamePattern>${LOG_PATH}/${LOG_FILE}.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+				<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+					<maxFileSize>10MB</maxFileSize>
+				</timeBasedFileNamingAndTriggeringPolicy>
+			</rollingPolicy>
+		</appender>
+		<logger name="com.spek" level="DEBUG" />
+		<root level="WARN">
+			<appender-ref ref="CONSOLE-APPENDER"/>
+			<appender-ref ref="SIZED_ROLLING_FILE"/>
+		</root>
+	</springProfile>
+
+	<springProfile name="prod">
+		<appender name="CONSOLE-APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+			<encoder charset="UTF-8">
+				<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+			</encoder>
+		</appender>
+
+		<appender name="SIZED_ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<encoder>
+				<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+			</encoder>
+			<file>${LOG_PATH}/${LOG_FILE}.log</file>
+			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<fileNamePattern>${LOG_PATH}/${LOG_FILE}.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+				<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+					<maxFileSize>10MB</maxFileSize>
+				</timeBasedFileNamingAndTriggeringPolicy>
+			</rollingPolicy>
+		</appender>
+		<!-- 异步输出 -->
+		<appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+			<!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+			<discardingThreshold>0</discardingThreshold>
+			<!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+			<queueSize>512</queueSize>
+			<!-- 添加附加的appender,最多只能添加一个 -->
+			<appender-ref ref="CONSOLE-APPENDER"/>
+			<appender-ref ref="SIZED_ROLLING_FILE"/>
+		</appender>
+		<root level="WARN">
+			<appender-ref ref="ASYNC"/>
+		</root>
+	</springProfile>
+</configuration>
