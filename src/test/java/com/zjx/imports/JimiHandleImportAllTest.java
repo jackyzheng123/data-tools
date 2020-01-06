@@ -50,7 +50,7 @@ public class JimiHandleImportAllTest {
 
     private static final String RELATION_PATH = "E:/zjx/work/几米资料/出货信息/Relation/";
 
-    private static final ThreadPoolExecutor executor = new ThreadPoolExecutor(17, 17, 10,
+    private static final ThreadPoolExecutor executor = new ThreadPoolExecutor(8, 17, 10,
             TimeUnit.SECONDS, new LinkedBlockingQueue<>(100));
 
     /**
